@@ -6,12 +6,20 @@ function loadMonorepoDotenv(startDir) {
   let dir = path.resolve(startDir);
   let rootLoaded = false;
   for (let i = 0; i < 10; i++) {
-    const turbo = path.join(dir, 'turbo.json');
+    const pkgPath = path.join(dir, 'package.json');
     const envFile = path.join(dir, '.env');
-    if (fs.existsSync(turbo) && fs.existsSync(envFile)) {
-      require('dotenv').config({ path: envFile, override: true });
-      rootLoaded = true;
-      break;
+    if (fs.existsSync(pkgPath)) {
+      try {
+        const raw = fs.readFileSync(pkgPath, 'utf8');
+        const pkg = JSON.parse(raw);
+        if (pkg?.name === '@neardrop/api' && fs.existsSync(envFile)) {
+          require('dotenv').config({ path: envFile, override: true });
+          rootLoaded = true;
+          break;
+        }
+      } catch {
+        /* ignore */
+      }
     }
     const parent = path.dirname(dir);
     if (parent === dir) break;

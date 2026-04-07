@@ -4,8 +4,18 @@ import type { Env } from '../config/schema.js';
 import { ParcelService } from '../services/parcel.service.js';
 import { createUserService } from '../services/user.service.factory.js';
 
-/** Shared demo password (meets auth policy; rotate in real deployments). */
+/** Shared demo password for internal-only seed users (ops + second hub). */
 export const DEMO_LONDON_SEED_PASSWORD = 'Demo8London!Seedxx';
+
+/**
+ * Fixed portal test logins (grant/demo handoff). Passwords meet shared auth policy.
+ * Carrier / customer / affiliate use these; ops + second affiliate use {@link DEMO_LONDON_SEED_PASSWORD}.
+ */
+export const DEMO_PORTAL_TEST_ACCOUNTS = {
+  carrier: { email: 'testmail1@example.com', password: 'ZRqA8b_G!v7mt9A' },
+  customer: { email: 'testmail2@example.com', password: '8-HKCskEfUQqy$P' },
+  affiliate: { email: 'testmail3@example.com', password: '7CD5*fSD6PiKw!M' },
+} as const;
 
 export type DemoLondonSeedSummary = {
   tag: string;
@@ -52,24 +62,26 @@ export async function seedDemoLondonDataset(
   const userSvc = createUserService(knex, config);
   const parcelSvc = new ParcelService(knex, {});
 
-  const pwd = DEMO_LONDON_SEED_PASSWORD;
   const hubA = pickLondonDemoPostcode(0);
   let hubB = pickLondonDemoPostcode(1);
   if (hubB === hubA) {
     hubB = pickLondonDemoPostcode(2);
   }
 
+  const portal = DEMO_PORTAL_TEST_ACCOUNTS;
+  const internalPwd = DEMO_LONDON_SEED_PASSWORD;
+
   const emails = {
     ops: `demo8-ops-${tag}@example.test`,
-    carrier: `demo8-car-${tag}@example.test`,
-    affiliateA: `demo8-aff-a-${tag}@example.test`,
+    carrier: portal.carrier.email,
+    affiliateA: portal.affiliate.email,
     affiliateB: `demo8-aff-b-${tag}@example.test`,
-    customer: `demo8-cust-${tag}@example.test`,
+    customer: portal.customer.email,
   };
 
   await userSvc.register({
     email: emails.ops,
-    password: pwd,
+    password: internalPwd,
     firstName: 'Demo',
     lastName: 'Ops',
     role: 'ops',
@@ -78,7 +90,7 @@ export async function seedDemoLondonDataset(
 
   await userSvc.register({
     email: emails.affiliateA,
-    password: pwd,
+    password: portal.affiliate.password,
     firstName: 'Demo',
     lastName: 'HubA',
     role: 'affiliate',
@@ -89,7 +101,7 @@ export async function seedDemoLondonDataset(
 
   await userSvc.register({
     email: emails.affiliateB,
-    password: pwd,
+    password: internalPwd,
     firstName: 'Demo',
     lastName: 'HubB',
     role: 'affiliate',
@@ -100,7 +112,7 @@ export async function seedDemoLondonDataset(
 
   const carrierReg = await userSvc.register({
     email: emails.carrier,
-    password: pwd,
+    password: portal.carrier.password,
     firstName: 'Demo',
     lastName: 'Carrier',
     role: 'carrier',
@@ -109,7 +121,7 @@ export async function seedDemoLondonDataset(
 
   await userSvc.register({
     email: emails.customer,
-    password: pwd,
+    password: portal.customer.password,
     firstName: 'Demo',
     lastName: 'Customer',
     role: 'customer',

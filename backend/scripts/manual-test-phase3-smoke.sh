@@ -3,8 +3,8 @@
 # Prerequisites: PostgreSQL; .env DATABASE_URL + JWT_SECRET (32+). Latest migrations applied.
 # Usage: bash scripts/manual-test-phase3-smoke.sh [API_BASE]
 set -euo pipefail
-ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-cd "$ROOT"
+REPO_ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
+cd "$REPO_ROOT"
 API="${1:-http://127.0.0.1:3010}"
 TS="$(date +%s)"
 PW='GoodPassw0rd!'

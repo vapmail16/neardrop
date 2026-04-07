@@ -38,5 +38,5 @@ frontend/playwright/.cache/
 # Misc
 *.tsbuildinfo
 
-# Local PostgreSQL data directory (optional dev cluster; see database/data/README.md)
-database/pgdata/
+# Local PostgreSQL data directory (optional dev cluster; see backend/database/data/README.md)
+backend/database/pgdata/

@@ -2,7 +2,7 @@
  * London demo postcodes for Phase 8 Playwright seeds only.
  * Playwright runs these files with Node and cannot resolve `@neardrop/shared` exports
  * (see `src/meta/playwright-e2e-scope.contract.test.ts`). Keep in sync with
- * `packages/shared/src/demo/london-demo-postcodes.ts`.
+ * `backend/packages/shared/src/demo/london-demo-postcodes.ts`.
  */
 const LONDON = [
   'E1 6AN',

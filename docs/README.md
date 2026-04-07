@@ -4,13 +4,13 @@
 | -------- | ------- |
 | [MANUAL_TEST_PHASE_0.md](./MANUAL_TEST_PHASE_0.md) | Hands-on checklist before Phase 1 (lint, tests, migrate, health, optional web/E2E) |
 | [MANUAL_TEST_PHASE_1.md](./MANUAL_TEST_PHASE_1.md) | Phase 1 auth: automated gates + manual curl smoke (incl. **ops-ping** RBAC) |
-| [MANUAL_TEST_PHASE_2.md](./MANUAL_TEST_PHASE_2.md) | Phase 2 parcels: gates + manifest / state machine smoke (`scripts/manual-test-phase2-smoke.sh`) |
-| [MANUAL_TEST_PHASE_3.md](./MANUAL_TEST_PHASE_3.md) | Phase 3 QR + collect + notifications: gates + scripted negative/positive API cases (`scripts/manual-test-phase3-smoke.sh`) |
+| [MANUAL_TEST_PHASE_2.md](./MANUAL_TEST_PHASE_2.md) | Phase 2 parcels: gates + manifest / state machine smoke (`backend/scripts/manual-test-phase2-smoke.sh`) |
+| [MANUAL_TEST_PHASE_3.md](./MANUAL_TEST_PHASE_3.md) | Phase 3 QR + collect + notifications: gates + scripted negative/positive API cases (`backend/scripts/manual-test-phase3-smoke.sh`) |
 | [NEARDROP_MVP_IMPLEMENTATION_PLAN.md](./NEARDROP_MVP_IMPLEMENTATION_PLAN.md) | Stage-gated MVP plan, exit gates, policy decisions (§14) |
 | [API_REFERENCE.md](./API_REFERENCE.md) | HTTP API notes |
 | [ISSUE_LOG.md](./ISSUE_LOG.md) | Running issue / decision log |
-| [evidence/phase-0-exit-gates.md](./evidence/phase-0-exit-gates.md) | Phase 0 exit gate command output (refresh: `npm run record:phase0-evidence` from repo root) |
+| [evidence/phase-0-exit-gates.md](./evidence/phase-0-exit-gates.md) | Phase 0 exit gate command output (refresh: `npm run record:phase0-evidence` from `backend/`) |
 
-**Reference material (non-normative for code structure):** see [`../example_documents/README.md`](../example_documents/README.md) for consolidated guidelines (`MASTER_GUIDELINES.md`, checklists, audit prompts).
+**Reference material (non-normative for code structure):** see [`example_documents/README.md`](./example_documents/README.md) for consolidated guidelines (`MASTER_GUIDELINES.md`, checklists, audit prompts).
 
-The canonical **monorepo layout** is described in the MVP plan and root `README.md` (`frontend/`, `backend/`, `packages/*`, `database/`).
+The canonical **layout** is described in the MVP plan and root `README.md` (`frontend/`, `backend/` including `backend/packages/shared`, `backend/database/`).

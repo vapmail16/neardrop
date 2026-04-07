@@ -2,10 +2,10 @@
 # Repeatable curl smoke for docs/MANUAL_TEST_PHASE_2.md §2.
 # Prerequisites: PostgreSQL up; project_scaffolding/.env with DATABASE_URL + JWT_SECRET (32+ chars).
 # Usage (from repo): bash scripts/manual-test-phase2-smoke.sh [API_BASE]
-# Default API_BASE=http://127.0.0.1:3010 — start API first: npm run dev --workspace=@neardrop/api
+# Default API_BASE=http://127.0.0.1:3010 — start API first: cd backend && npm run dev
 set -euo pipefail
-ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-cd "$ROOT"
+REPO_ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
+cd "$REPO_ROOT"
 API="${1:-http://127.0.0.1:3010}"
 TS="$(date +%s)"
 PW='GoodPassw0rd!'
@@ -23,7 +23,7 @@ for i in $(seq 1 40); do
     break
   fi
   if [[ "$i" -eq 40 ]]; then
-    echo "FAIL: API not reachable at ${API}/api/v1/health (start: npm run dev --workspace=@neardrop/api)" >&2
+    echo "FAIL: API not reachable at ${API}/api/v1/health (start: cd backend && npm run dev)" >&2
     exit 1
   fi
   sleep 0.5

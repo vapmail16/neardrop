@@ -2,10 +2,10 @@
 # Repeatable curl smoke for docs/MANUAL_TEST_PHASE_1.md section 2.
 # Prerequisites: API running; JWT_SECRET in .env when hitting DB.
 # Usage: bash scripts/manual-test-phase1-smoke.sh [API_BASE]
-# Start API: npm run dev --workspace=@neardrop/api
+# Start API: cd backend && npm run dev
 set -euo pipefail
-ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-cd "$ROOT"
+REPO_ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
+cd "$REPO_ROOT"
 API="${1:-http://127.0.0.1:3010}"
 TS="$(date +%s)"
 PW='GoodPassw0rd!'

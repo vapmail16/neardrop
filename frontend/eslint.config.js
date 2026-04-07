@@ -3,7 +3,7 @@ import eslintConfigPrettier from 'eslint-config-prettier';
 import globals from 'globals';
 import tseslint from 'typescript-eslint';
 
-/** Monorepo: use non-type-checked rules at root for stable `npm run lint` across packages. */
+/** NearDrop web — non-type-checked recommended rules for stable `npm run lint`. */
 export default tseslint.config(
   eslint.configs.recommended,
   ...tseslint.configs.recommended,

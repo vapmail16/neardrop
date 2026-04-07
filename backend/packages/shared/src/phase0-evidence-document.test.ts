@@ -3,8 +3,14 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 
-/** Monorepo root (packages/shared/src → ../../../). */
-const repoRoot = join(dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
+/** Repository root (backend/packages/shared/src → ../../../../). */
+const repoRoot = join(
+  dirname(fileURLToPath(import.meta.url)),
+  '..',
+  '..',
+  '..',
+  '..',
+);
 const evidencePath = join(repoRoot, 'docs', 'evidence', 'phase-0-exit-gates.md');
 
 function sectionHasPass(text: string, gateHeading: string): boolean {
@@ -18,19 +24,19 @@ function sectionHasPass(text: string, gateHeading: string): boolean {
 
 /**
  * Guards the Phase 0 exit gate evidence required by `docs/NEARDROP_MVP_IMPLEMENTATION_PLAN.md` §9.
- * Refresh with `scripts/record-phase-gates.sh` (uses a stub file during the first test pass).
+ * Refresh with `npm run record:phase0-evidence` from `backend/` (uses a stub file during the first test pass).
  */
 describe('Phase 0 evidence document', () => {
-  it('has record-phase-gates.sh at repo root', () => {
+  it('has record-phase-gates.sh under backend/scripts', () => {
     expect(
-      existsSync(join(repoRoot, 'scripts', 'record-phase-gates.sh')),
+      existsSync(join(repoRoot, 'backend', 'scripts', 'record-phase-gates.sh')),
     ).toBe(true);
   });
 
   it('exists and marks every required gate PASS', () => {
     expect(
       existsSync(evidencePath),
-      `Expected evidence at ${evidencePath} — run scripts/record-phase-gates.sh`,
+      `Expected evidence at ${evidencePath} — run npm run record:phase0-evidence from backend/`,
     ).toBe(true);
 
     const text = readFileSync(evidencePath, 'utf8');

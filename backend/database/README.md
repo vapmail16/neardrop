@@ -4,7 +4,7 @@ NearDrop uses **Knex migrations** as the source of truth for the PostgreSQL sche
 
 | Location | Role |
 | -------- | ---- |
-| `backend/src/database/migrations/` | Versioned migrations (run via `npm run migrate` from repo root) |
+| `backend/src/database/migrations/` | Versioned migrations (run via `npm run migrate` from `backend/`) |
 | `schema.sql` in this folder | **Reference** snapshot for readers / tools; regenerate or update manually when migrations change (optional) |
 | `data/` in this folder | Optional local Postgres data directory docs (dev-only) |
 

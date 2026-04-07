@@ -23,10 +23,13 @@ describe('loadMonorepoDotenv', () => {
     else process.env['NODE_ENV'] = origNode;
   });
 
-  it('loads root .env when startDir is apps/api under monorepo root', () => {
-    const root = mkdtempSync(join(tmpdir(), 'neardrop-mono-'));
-    mkdirSync(join(root, 'apps', 'api'), { recursive: true });
-    writeFileSync(join(root, 'turbo.json'), '{}');
+  it('loads API package .env when startDir is nested under @neardrop/api root', () => {
+    const root = mkdtempSync(join(tmpdir(), 'neardrop-api-'));
+    mkdirSync(join(root, 'src', 'nested'), { recursive: true });
+    writeFileSync(
+      join(root, 'package.json'),
+      JSON.stringify({ name: '@neardrop/api', private: true }),
+    );
     writeFileSync(
       join(root, '.env'),
       [
@@ -40,18 +43,21 @@ describe('loadMonorepoDotenv', () => {
     delete process.env['DATABASE_URL'];
     process.env['NODE_ENV'] = 'test';
 
-    const apiDir = join(root, 'apps', 'api');
-    loadMonorepoDotenv(apiDir);
+    const start = join(root, 'src', 'nested');
+    loadMonorepoDotenv(start);
 
     expect(process.env['JWT_SECRET']).toBe('0123456789abcdef0123456789abcdef');
     expect(process.env['DATABASE_URL']).toBe('postgres://localhost:5432/testdb');
     expect(existsSync(join(root, '.env'))).toBe(true);
   });
 
-  it('local package .env overrides root when both exist', () => {
-    const root = mkdtempSync(join(tmpdir(), 'neardrop-mono-'));
-    mkdirSync(join(root, 'apps', 'api'), { recursive: true });
-    writeFileSync(join(root, 'turbo.json'), '{}');
+  it('local package .env overrides API root when both exist', () => {
+    const root = mkdtempSync(join(tmpdir(), 'neardrop-api-'));
+    mkdirSync(join(root, 'src'), { recursive: true });
+    writeFileSync(
+      join(root, 'package.json'),
+      JSON.stringify({ name: '@neardrop/api', private: true }),
+    );
     writeFileSync(
       join(root, '.env'),
       [
@@ -61,20 +67,23 @@ describe('loadMonorepoDotenv', () => {
       ].join('\n'),
     );
     writeFileSync(
-      join(root, 'apps', 'api', '.env'),
+      join(root, 'src', '.env'),
       'DATABASE_URL=postgres://local/override\n',
     );
 
-    loadMonorepoDotenv(join(root, 'apps', 'api'));
+    loadMonorepoDotenv(join(root, 'src'));
 
     expect(process.env['DATABASE_URL']).toBe('postgres://local/override');
     expect(process.env['JWT_SECRET']).toBe('0123456789abcdef0123456789abcdef');
   });
 
-  it('root .env overrides stale DATABASE_URL already in process.env', () => {
-    const root = mkdtempSync(join(tmpdir(), 'neardrop-mono-'));
-    mkdirSync(join(root, 'apps', 'api'), { recursive: true });
-    writeFileSync(join(root, 'turbo.json'), '{}');
+  it('API .env overrides stale DATABASE_URL already in process.env', () => {
+    const root = mkdtempSync(join(tmpdir(), 'neardrop-api-'));
+    mkdirSync(join(root, 'src'), { recursive: true });
+    writeFileSync(
+      join(root, 'package.json'),
+      JSON.stringify({ name: '@neardrop/api', private: true }),
+    );
     writeFileSync(
       join(root, '.env'),
       [
@@ -87,7 +96,7 @@ describe('loadMonorepoDotenv', () => {
     process.env['DATABASE_URL'] = 'postgres://stale-shell:5434/old';
     process.env['NODE_ENV'] = 'test';
 
-    loadMonorepoDotenv(join(root, 'apps', 'api'));
+    loadMonorepoDotenv(join(root, 'src'));
 
     expect(process.env['DATABASE_URL']).toBe(
       'postgres://from-file:5432/neardrop',
