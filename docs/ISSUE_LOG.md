@@ -11,3 +11,5 @@ Format: **date — title** — root cause — fix — prevention.
 
 **2026-04-07 — Production DB URL shared in chat / assistant logs** — Passwords in URLs must be treated as compromised once pasted anywhere outside a secret store. — Rotate the dcdeploy database password and update `backend/.env` only on trusted machines; never commit `.env`. — **Prevention:** Use dcdeploy secret UI or env-injection for deploy; keep `DATABASE_URL` out of tickets, chat, and git.
 
+**2026-04-07 — Assumption: Docker must be built locally before DCDeploy** — Unnecessary for this workflow. — DCDeploy runs `backend/Dockerfile` after `git push`; docs updated to state local `docker build` is optional. — **Prevention:** See `docs/BACKEND_DEPLOYMENT_GUIDE.md` and `docs/DEPLOYMENT_ISSUE_LOG.md`.
+
