@@ -1,0 +1,22 @@
+# Used when build context is the repo root (e.g. `docker build -f frontend/Dockerfile .`).
+# Backend image builds use `backend/` as context and ignore this file.
+
+.git
+**/.env
+**/.env.*
+!**/.env.example
+
+**/node_modules
+**/coverage
+**/test-results
+**/playwright/.cache
+
+backend/dist
+backend/node_modules
+backend/src
+frontend/.next
+frontend/node_modules
+
+# Docs and logs are not needed for the frontend image
+docs/evidence
+*.log

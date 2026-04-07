@@ -69,6 +69,7 @@ curl -sS "https://YOUR-API-HOST/api/v1/health"
 |------|---------|
 | `backend/Dockerfile` | Image build (executed on DCDeploy) |
 | `backend/DCDeploy_ENV_VARS.md` | Env var checklist |
+| `docs/FRONTEND_DEPLOYMENT_GUIDE.md` | Next.js service + `CORS_ORIGIN` vs frontend URL |
 | `docs/DEPLOYMENT_CHECKLIST.md` | Short checklist |
 | `docs/DEPLOYMENT_ISSUE_LOG.md` | Deployment issues and fixes |
 | `docs/ISSUE_LOG.md` | General project issue log |

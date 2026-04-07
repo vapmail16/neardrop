@@ -17,10 +17,17 @@ Quick reference. **Docker images are built on DCDeploy**; local `docker build` i
 - [ ] `GET /api/v1/health` returns 200 and `database: connected`.
 - [ ] Smoke test login or public route as appropriate.
 
-## Frontend (separate service)
+## Before first frontend deploy
 
-- [ ] `frontend/.env` / build args point `API_UPSTREAM` or `NEXT_PUBLIC_*` at the deployed API URL.
-- [ ] CORS on API matches the deployed frontend origin.
+- [ ] `frontend/package-lock.json` committed.
+- [ ] DCDeploy **build context** is the **repo root** (not only `frontend/`), Dockerfile **`frontend/Dockerfile`** (see `docs/FRONTEND_DEPLOYMENT_GUIDE.md`).
+- [ ] **Build argument** `API_UPSTREAM` set to the public **https** API base URL (no trailing slash); triggers a rebuild when the API URL changes.
+- [ ] Container / routing port **3020** matches `PORT` and the platform mapping.
+
+## After frontend deploy
+
+- [ ] Site loads; `/api/...` calls succeed (rewrites to `API_UPSTREAM`).
+- [ ] API **`CORS_ORIGIN`** updated to the frontend origin and backend redeployed if needed.
 
 ## If something fails
 

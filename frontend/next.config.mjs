@@ -1,6 +1,17 @@
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+/** Monorepo root — include `backend/packages/shared` in standalone file tracing. */
+const outputFileTracingRoot = path.join(__dirname, '..');
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  output: 'standalone',
+  experimental: {
+    outputFileTracingRoot,
+  },
   /** Reduce file watchers in dev (macOS EMFILE); avoids flaky missing chunks / 404 on `/`. */
   webpack: (config, { dev }) => {
     if (dev) {

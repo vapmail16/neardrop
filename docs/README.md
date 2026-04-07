@@ -11,6 +11,7 @@
 | [ISSUE_LOG.md](./ISSUE_LOG.md) | Running issue / decision log |
 | [DEPLOYMENT_ISSUE_LOG.md](./DEPLOYMENT_ISSUE_LOG.md) | Deploy / DCDeploy / Docker issues and fixes |
 | [BACKEND_DEPLOYMENT_GUIDE.md](./BACKEND_DEPLOYMENT_GUIDE.md) | Backend on DCDeploy (**build runs on platform**, not locally) |
+| [FRONTEND_DEPLOYMENT_GUIDE.md](./FRONTEND_DEPLOYMENT_GUIDE.md) | Next.js frontend on DCDeploy (repo-root context, `API_UPSTREAM` build arg) |
 | [DEPLOYMENT_CHECKLIST.md](./DEPLOYMENT_CHECKLIST.md) | Short pre/post deploy checklist |
 | [evidence/phase-0-exit-gates.md](./evidence/phase-0-exit-gates.md) | Phase 0 exit gate command output (refresh: `npm run record:phase0-evidence` from `backend/`) |
 

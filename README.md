@@ -12,7 +12,10 @@ Plan and process: `docs/NEARDROP_MVP_IMPLEMENTATION_PLAN.md`.
 - `backend/database/` — Schema reference snapshot; **migrations** live under `backend/src/database/migrations/`.
 - `.github/workflows/` — CI (must stay at repository root for GitHub Actions).
 
-**DCDeploy (backend):** Image build runs **on DCDeploy** from `backend/Dockerfile` — you do not need Docker on your machine. See **`docs/BACKEND_DEPLOYMENT_GUIDE.md`**, **`backend/DCDeploy_ENV_VARS.md`**, and **`docs/DEPLOYMENT_CHECKLIST.md`**.
+**DCDeploy:** Images build **on DCDeploy** (no local Docker required).  
+- **API:** `backend/Dockerfile` with context **`backend/`** — see **`docs/BACKEND_DEPLOYMENT_GUIDE.md`**, **`backend/DCDeploy_ENV_VARS.md`**.  
+- **Web:** `frontend/Dockerfile` with context **repository root** (needs `backend/packages/shared` for `file:` dependency) — see **`docs/FRONTEND_DEPLOYMENT_GUIDE.md`**, **`frontend/DCDeploy_ENV_VARS.md`**.  
+- **Checklist:** **`docs/DEPLOYMENT_CHECKLIST.md`**.
 
 Run **`npm install` and all `npm run …` commands from `backend/` or `frontend/`** as documented below (not from the repo root).
 
