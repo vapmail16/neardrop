@@ -10,7 +10,8 @@ Quick reference. **Docker images are built on DCDeploy**; local `docker build` i
 - [ ] Production `DATABASE_URL` set in DCDeploy; migrations applied (`cd backend && npm run migrate` with prod URL).
 - [ ] `JWT_SECRET` (32+ chars) set only in DCDeploy / secret store — not in git.
 - [ ] `CORS_ORIGIN` set to the deployed **frontend** origin (update when frontend URL is known).
-- [ ] Service **port 3010** and Dockerfile path / context configured (see `docs/BACKEND_DEPLOYMENT_GUIDE.md`).
+- [ ] DCDeploy **root directory** = **`backend`** (not repo root); Dockerfile = **`Dockerfile`**; port **3010**.
+- [ ] **`JWT_SECRET`** (32+) and **`DATABASE_URL`** set in DCDeploy env (required or API exits on startup).
 
 ## After backend deploy
 
@@ -20,9 +21,9 @@ Quick reference. **Docker images are built on DCDeploy**; local `docker build` i
 ## Before first frontend deploy
 
 - [ ] `frontend/package-lock.json` committed.
-- [ ] DCDeploy **build context** is the **repo root** (not only `frontend/`), Dockerfile **`frontend/Dockerfile`** (see `docs/FRONTEND_DEPLOYMENT_GUIDE.md`).
-- [ ] **Build argument** `API_UPSTREAM` set to the public **https** API base URL (no trailing slash); triggers a rebuild when the API URL changes.
-- [ ] Container / routing port **3020** matches `PORT` and the platform mapping.
+- [ ] DCDeploy **build context** = **`./frontend`**, Dockerfile **`./Dockerfile`** (see `docs/FRONTEND_DEPLOYMENT_GUIDE.md`).
+- [ ] **Build argument** `API_UPSTREAM` set to the public **https** API base URL (no trailing slash); optional `GIT_REPO` / `GIT_REF` if not using defaults.
+- [ ] Container / routing port **3000** matches `PORT` and the platform mapping (unless the platform injects `PORT`).
 
 ## After frontend deploy
 

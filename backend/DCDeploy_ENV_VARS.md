@@ -1,13 +1,30 @@
 # DCDeploy environment variables — NearDrop API
 
-**Purpose:** Copy-paste checklist for the backend service on DCDeploy.  
-**Build:** DCDeploy builds the image from `backend/Dockerfile` (you do **not** need to run Docker on your laptop).
+**Build:** DCDeploy runs **`Dockerfile`** with the **`backend/`** folder as the build context (subdirectory of the repo — same idea as mahimapareek).
 
 ---
 
-## Required (production)
+## DCDeploy service settings (backend)
 
-Set these in DCDeploy → backend service → Environment variables.
+| Setting | Value |
+| --------| ------|
+| **Repository** | `vapmail16/neardrop` (or yours) |
+| **Branch** | `main` (or production branch) |
+| **Root directory / subfolder / context** | **`backend`** |
+| **Dockerfile** | **`Dockerfile`** (file inside `backend/`; not `backend/Dockerfile` from repo root unless your UI is repo-root–relative) |
+| **HTTP / container port** | **`3010`** |
+
+If your platform labels it “working directory” or “project root”, it must be the folder that contains **`package.json`** and this **`Dockerfile`**.
+
+---
+
+## Required runtime variables (must be set before the container stays up)
+
+The API calls `loadConfig()` on startup. If these are missing, Node exits immediately, e.g.:
+
+`Error: Invalid environment: JWT_SECRET: Required`
+
+Set in **DCDeploy → your backend service → Environment variables** (or Secrets):
 
 ```env
 NODE_ENV=production
@@ -16,7 +33,7 @@ HOST=0.0.0.0
 
 DATABASE_URL=postgresql://USER:PASSWORD@HOST:PORT/DATABASE
 
-JWT_SECRET=minimum-32-characters-required-use-a-long-random-secret
+JWT_SECRET=minimum-32-characters-use-a-long-random-secret
 JWT_ACCESS_EXPIRES=15m
 JWT_REFRESH_EXPIRES=7d
 JWT_QR_COLLECTION_EXPIRES=7d
@@ -24,22 +41,15 @@ JWT_QR_COLLECTION_EXPIRES=7d
 BCRYPT_ROUNDS=12
 LOG_LEVEL=info
 
-# Browser origin for the deployed Next app (CORS). Update after frontend URL is known.
 CORS_ORIGIN=https://your-frontend-host.example
-
-# Keep 0 in production unless you understand the risk (disables login rate limit).
 DISABLE_LOGIN_RATE_LIMIT=0
 ```
 
----
+Generate a secret (32+ bytes hex):
 
-## Service settings (DCDeploy UI)
-
-| Setting | Value |
-| --------| ------|
-| **Root / context** | Repository with `backend/` as the build context, or path `./backend` if the platform supports it |
-| **Dockerfile path** | `backend/Dockerfile` (relative to repo root) |
-| **Container port** | `3010` (must match `PORT`) |
+```bash
+node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+```
 
 ---
 
@@ -49,19 +59,17 @@ DISABLE_LOGIN_RATE_LIMIT=0
 curl -sS "https://YOUR-API-HOST/api/v1/health"
 ```
 
-Expect JSON with `"success":true` and `"database":"connected"` when the database is reachable.
+Expect `"success":true` and `"database":"connected"` when Postgres is reachable.
 
 ---
 
 ## Migrations
 
-Run Knex **once** against the same `DATABASE_URL` (CI, a one-off job, or your machine with env set):
+The container does **not** run Knex on start. Apply schema separately:
 
 ```bash
-cd backend && npm run migrate
+cd backend && DATABASE_URL='…' npm run migrate
 ```
-
-Do not bake migration runs into the image `CMD` unless you intentionally want that behaviour.
 
 ---
 

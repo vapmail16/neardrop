@@ -7,7 +7,7 @@
 
 ## Overview
 
-1. DCDeploy clones the repo and builds the image using **`backend/Dockerfile`**.
+1. DCDeploy clones the repo and builds using the **`backend/`** directory as context and the **`Dockerfile`** inside it (mahimapareek-style **subfolder** deploy, not monorepo root).
 2. You configure **environment variables** in the DCDeploy UI (see `backend/DCDeploy_ENV_VARS.md`).
 3. You expose port **3010** and point the health check at **`GET /api/v1/health`** (or rely on the Dockerfile `HEALTHCHECK`).
 4. You run **database migrations** against production Postgres when the schema changes (separate from the container start command).
@@ -29,10 +29,10 @@
 
 1. **New service** → Web / Docker (per DCDeploy product flow).
 2. **Repository:** NearDrop GitHub repo, branch `main` (or your release branch).
-3. **Build context:** Directory **`backend`** (so the Dockerfile sees `package.json` at context root), **or** set Dockerfile path to `backend/Dockerfile` and context to repo root per DCDeploy’s rules.
-4. **Dockerfile:** `Dockerfile` if context is `backend/`; otherwise `backend/Dockerfile`.
-5. **Port:** **3010** (internal container port; map to HTTPS in the platform as documented by DCDeploy).
-6. **Environment:** Paste variables from `backend/DCDeploy_ENV_VARS.md` (no secrets in git — set only in the UI).
+3. **Root directory / context:** **`backend`** — the folder that contains `package.json`, `Dockerfile`, `packages/shared`, and `src`. Do **not** use the monorepo root for the API image.
+4. **Dockerfile:** **`Dockerfile`** (default path inside that folder).
+5. **Port:** **3010** (must match `PORT` in env).
+6. **Environment:** Set **`JWT_SECRET`** (32+ chars) and **`DATABASE_URL`** at minimum — without them the process crashes on boot (`Invalid environment: JWT_SECRET: Required`). Full list: `backend/DCDeploy_ENV_VARS.md`.
 
 ---
 

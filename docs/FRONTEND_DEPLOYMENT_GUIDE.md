@@ -1,18 +1,17 @@
 # Frontend deployment guide — NearDrop (DCDeploy)
 
-**Stack:** Next.js 14 App Router, **`output: 'standalone'`** for Docker.  
-**Platform:** DCDeploy builds the image from **`frontend/Dockerfile`** (local Docker optional).
+**Stack:** Next.js 14 App Router, **`output: 'standalone'`** + **`experimental.outputFileTracingRoot`** (monorepo parent) for Docker.  
+**Platform:** DCDeploy builds from **`frontend/Dockerfile`** with context **`./frontend`**.
 
 ---
 
-## Critical: repository root as build context
+## Build context: `./frontend`
 
-`@neardrop/web` depends on **`file:../backend/packages/shared`**. The Docker build must see both trees, so:
+DCDeploy is configured like the backend: **context** = **`./frontend`**, **Dockerfile** = **`./Dockerfile`**.
 
-- **Build context** = **repository root** (the folder that contains `frontend/` and `backend/`).
-- **Dockerfile path** = `frontend/Dockerfile`.
+`@neardrop/web` still depends on **`file:../backend/packages/shared`**. The tarball for `./frontend` does **not** include `../backend`, so the Dockerfile **clones the same Git repository** during build and copies `backend/packages/shared` into the image before `npm ci` / `npm run build`.
 
-If DCDeploy only allows a subdirectory (e.g. `frontend/`) as context, this Dockerfile will **not** work without restructuring the repo or vendoring shared into `frontend/`.
+**Build args:** `GIT_REPO`, `GIT_REF` (defaults target this repo’s `main`); `API_UPSTREAM` for production API URL. See `frontend/DCDeploy_ENV_VARS.md`.
 
 ---
 
@@ -30,17 +29,21 @@ API_UPSTREAM=https://YOUR-API-HOST
 - Use `https` in production.
 - Changing this value requires a **new frontend image build**.
 
-See `frontend/DCDeploy_ENV_VARS.md` for a short checklist.
-
 ---
 
 ## Image layout
 
-1. **Stage `shared-builder`:** compile `backend/packages/shared` (`npm install` + `npm run build`).
-2. **Stage `frontend-builder`:** copy built shared into `/app/backend/packages/shared`, `npm ci` in `frontend/`, `npm run build`.
-3. **Stage `runner`:** copy `.next/standalone` and `.next/static`, run `node server.js` on port **3020**.
+1. **`shared-fetch`:** `git clone` + copy `backend/packages/shared` → `/app/backend/packages/shared`.
+2. **`builder`:** `npm ci` and `npm run build` in `/app/frontend`.
+3. **`runner`:** Copy `.next/standalone` to `/app`, copy static files to **`frontend/.next/static`** (standalone server path is **`frontend/server.js`**), run **`node frontend/server.js`** on **`PORT`** (default **3000**).
 
-Root **`.dockerignore`** (at repo root) keeps the build context smaller when building the frontend image.
+**`.dockerignore`** in `frontend/` trims the build context.
+
+---
+
+## Port
+
+Use **container port 3000** and **`PORT=3000`** unless your platform injects `PORT`. The process runs as a non-root user; binding to port 80 inside the container is not the default.
 
 ---
 
@@ -62,7 +65,7 @@ After the frontend has a public URL, set the API’s **`CORS_ORIGIN`** to that U
 
 | File | Purpose |
 |------|---------|
-| `frontend/Dockerfile` | Multi-stage image (context = repo root) |
+| `frontend/Dockerfile` | Multi-stage image (context = `frontend/`) |
 | `frontend/DCDeploy_ENV_VARS.md` | Build args + ports |
 | `docs/BACKEND_DEPLOYMENT_GUIDE.md` | API deployment |
 | `docs/DEPLOYMENT_CHECKLIST.md` | Combined checklist |

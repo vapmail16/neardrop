@@ -13,8 +13,8 @@ Plan and process: `docs/NEARDROP_MVP_IMPLEMENTATION_PLAN.md`.
 - `.github/workflows/` — CI (must stay at repository root for GitHub Actions).
 
 **DCDeploy:** Images build **on DCDeploy** (no local Docker required).  
-- **API:** `backend/Dockerfile` with context **`backend/`** — see **`docs/BACKEND_DEPLOYMENT_GUIDE.md`**, **`backend/DCDeploy_ENV_VARS.md`**.  
-- **Web:** `frontend/Dockerfile` with context **repository root** (needs `backend/packages/shared` for `file:` dependency) — see **`docs/FRONTEND_DEPLOYMENT_GUIDE.md`**, **`frontend/DCDeploy_ENV_VARS.md`**.  
+- **API:** Context subdirectory **`backend/`**, Dockerfile **`Dockerfile`** inside it (mahimapareek-style). Set **`JWT_SECRET`** + **`DATABASE_URL`** in the service env or the container exits on boot — see **`docs/BACKEND_DEPLOYMENT_GUIDE.md`**, **`backend/DCDeploy_ENV_VARS.md`**.  
+- **Web:** Context **`./frontend`**, Dockerfile **`./Dockerfile`** (Dockerfile clones the repo for `backend/packages/shared`); container port **`3000`** by default — see **`docs/FRONTEND_DEPLOYMENT_GUIDE.md`**, **`frontend/DCDeploy_ENV_VARS.md`**.  
 - **Checklist:** **`docs/DEPLOYMENT_CHECKLIST.md`**.
 
 Run **`npm install` and all `npm run …` commands from `backend/` or `frontend/`** as documented below (not from the repo root).
@@ -42,7 +42,7 @@ Copy **`backend/.env.example`** → **`backend/.env`** and set at least:
 `DATABASE_URL=postgresql://neardrop:neardrop@127.0.0.1:5432/neardrop`  
 `JWT_SECRET=` (32+ characters)
 
-Use **`frontend/.env.local`** for Next (`NEXT_PUBLIC_*`); see **`frontend/.env.example`**.
+Use **`frontend/.env`** or **`frontend/.env.local`** for Next (`API_UPSTREAM`, optional `NEXT_PUBLIC_*`); see **`frontend/.env.example`**. Both names are gitignored.
 
 ### Phase 0 check (migrations + TDD integration)
 

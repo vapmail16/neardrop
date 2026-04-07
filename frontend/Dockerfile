@@ -1,31 +1,36 @@
-# NearDrop web — Next.js `output: 'standalone'` (image built on DCDeploy; local build optional).
+# NearDrop web — Next.js standalone.
 #
-# CRITICAL: Docker build CONTEXT must be the repository root (parent of `frontend/` and `backend/`),
-# because `frontend/package.json` depends on `file:../backend/packages/shared`.
+# DCDeploy (same pattern as backend): Context = ./frontend , Dockerfile = ./Dockerfile
 #
-# Local (from repo root):  docker build -f frontend/Dockerfile .
+# The context tarball does NOT include ../backend, but package.json uses file:../backend/packages/shared.
+# This image shallow-clones the same Git repo inside the build to copy backend/packages/shared.
 #
-# DCDeploy: set build context to the repo root (`.`), Dockerfile path `frontend/Dockerfile`.
-# Set build argument API_UPSTREAM to your deployed API origin (https://..., no trailing slash).
+# Build args (set in DCDeploy when needed):
+#   GIT_REPO   default https://github.com/vapmail16/neardrop.git  (change for forks/private mirrors)
+#   GIT_REF    default main  — branch or tag name Git accepts with git clone --branch
+#   API_UPSTREAM  — your public API base URL (https://..., no trailing slash); baked into next.config at build time
+#
+# Private GitHub: use a PAT in GIT_REPO URL or DCDeploy git credentials; see docs/FRONTEND_DEPLOYMENT_GUIDE.md
+#
+# Container listens on PORT (default 3000). Set DCDeploy service port + env PORT to the same value (not 80 as non-root).
 
 FROM node:20-alpine AS base
-RUN apk add --no-cache libc6-compat
+RUN apk add --no-cache libc6-compat git
 WORKDIR /app
 
-# --- @neardrop/shared (linked from frontend via file:)
-FROM base AS shared-builder
-WORKDIR /app/backend/packages/shared
-COPY backend/packages/shared/package.json backend/packages/shared/tsconfig.json backend/packages/shared/tsconfig.build.json ./
-COPY backend/packages/shared/src ./src
-RUN npm install && npm run build
+FROM base AS shared-fetch
+ARG GIT_REPO=https://github.com/vapmail16/neardrop.git
+ARG GIT_REF=main
+RUN git clone --depth 1 --branch "${GIT_REF}" "${GIT_REPO}" /tmp/neardrop && \
+    mkdir -p /app/backend/packages && \
+    cp -r /tmp/neardrop/backend/packages/shared /app/backend/packages/shared
 
-# --- Next.js production build
-FROM base AS frontend-builder
-COPY --from=shared-builder /app/backend/packages/shared /app/backend/packages/shared
+FROM base AS builder
+COPY --from=shared-fetch /app/backend /app/backend
 WORKDIR /app/frontend
-COPY frontend/package.json frontend/package-lock.json ./
+COPY package.json package-lock.json ./
 RUN npm ci
-COPY frontend/ ./
+COPY . .
 
 ARG API_UPSTREAM=http://127.0.0.1:3010
 ENV API_UPSTREAM=$API_UPSTREAM
@@ -33,7 +38,6 @@ ENV NEXT_TELEMETRY_DISABLED=1
 
 RUN npm run build
 
-# --- Run standalone server
 FROM base AS runner
 WORKDIR /app
 
@@ -42,19 +46,20 @@ RUN apk add --no-cache curl && \
     adduser -S nodejs -u 1001 -G nodejs
 
 ENV NODE_ENV=production
-ENV PORT=3020
+ENV PORT=3000
 ENV HOSTNAME=0.0.0.0
 
-COPY --from=frontend-builder /app/frontend/.next/standalone ./
-COPY --from=frontend-builder /app/frontend/.next/static ./.next/static
+# Standalone layout mirrors the monorepo: server.js lives under frontend/ (see outputFileTracingRoot).
+COPY --from=builder /app/frontend/.next/standalone ./
+COPY --from=builder /app/frontend/.next/static ./frontend/.next/static
 
 RUN chown -R nodejs:nodejs /app
 
 USER nodejs
 
-EXPOSE 3020
+EXPOSE 3000
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=40s --retries=3 \
-  CMD curl -fsS "http://127.0.0.1:3020/" > /dev/null || exit 1
+  CMD curl -fsS "http://127.0.0.1:3000/" > /dev/null || exit 1
 
-CMD ["node", "server.js"]
+CMD ["node", "frontend/server.js"]

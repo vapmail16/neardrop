@@ -1,40 +1,51 @@
 # DCDeploy — NearDrop frontend (Next.js)
 
-**Build:** DCDeploy runs **`frontend/Dockerfile`** with the **repository root** as build context.  
-**Runtime:** Container listens on **3020** (`next` standalone / `PORT`).
+**Build:** DCDeploy uses **build context `./frontend`** and **`./Dockerfile`** (same pattern as the backend service).  
+**Runtime:** The container listens on **`PORT`** (default **3000**). Align DCDeploy’s **internal/container port** and **`PORT`** env with **3000** unless the platform overrides `PORT` automatically.
 
 ---
 
-## Build arguments (required for production)
+## Build arguments
 
-`API_UPSTREAM` is read when **`next build`** evaluates `next.config.mjs` — it sets the `/api/*` **rewrite** target. It must be the **public base URL of your API** (no path suffix).
+### `API_UPSTREAM` (required for production)
 
-**Example (replace with your real API host):**
+Read when **`next build`** evaluates `next.config.mjs` — sets the `/api/*` **rewrite** target. Must be the **public base URL of your API** (no path suffix).
+
+**Example:**
 
 ```text
 API_UPSTREAM=https://your-api-service.dcdeploy.cloud
 ```
 
-In DCDeploy, add this under **Build arguments** / **Docker build args** (not only runtime env), then rebuild the frontend image after the API URL is known.
+Add under **Build arguments** / **Docker build args**, then rebuild after the API URL is known.
 
 **Rules:**
 
 - Use **`https://`** in production.
 - **No** trailing slash.
-- After changing `API_UPSTREAM`, you **must rebuild** the frontend image (rewrites are compile-time for this config).
+- After changing `API_UPSTREAM`, **rebuild** the frontend image.
+
+### `GIT_REPO` / `GIT_REF` (optional)
+
+The image **shallow-clones** this repo during build to obtain `backend/packages/shared` (because `package.json` uses `file:../backend/packages/shared` and the context tarball is only `frontend/`).
+
+| Arg | Default | Notes |
+|-----|---------|--------|
+| `GIT_REPO` | `https://github.com/vapmail16/neardrop.git` | Change for forks or mirrors. |
+| `GIT_REF` | `main` | Branch or tag name accepted by `git clone --depth 1 --branch`. |
+
+**Private repos:** use a PAT in the clone URL or platform git credentials; see `docs/FRONTEND_DEPLOYMENT_GUIDE.md`.
 
 ---
 
 ## Runtime environment (optional)
 
-The standalone server usually only needs:
-
 ```env
 NODE_ENV=production
-PORT=3020
+PORT=3000
 ```
 
-If your platform injects `PORT` to match an external load balancer, ensure it matches the **exposed** container port you configure in DCDeploy.
+If the platform injects `PORT`, match the **exposed** container port to that value.
 
 ---
 
@@ -42,18 +53,20 @@ If your platform injects `PORT` to match an external load balancer, ensure it ma
 
 | Setting | Value |
 | --------| ------|
-| **Build context / root directory** | Repository root (where `frontend/` and `backend/` both exist) |
-| **Dockerfile path** | `frontend/Dockerfile` |
-| **Build argument** | `API_UPSTREAM=<https://your-api-host>` |
-| **Container / public port** | **3020** |
+| **Context / root directory** | `./frontend` |
+| **Dockerfile** | `./Dockerfile` |
+| **Build arguments** | `API_UPSTREAM=<https://your-api-host>`; optional `GIT_REPO`, `GIT_REF` |
+| **Container port** | **3000** (and set **`PORT=3000`** if the platform does not inject it) |
+
+Do **not** assume port **80** inside the container unless you run as root and configure the app for 80; this image runs as non-root and defaults to **3000**.
 
 ---
 
 ## After deploy
 
 1. Open the frontend URL in a browser.
-2. Confirm network calls: browser → same-origin `/api/...` → rewritten to `API_UPSTREAM`.
-3. On the **API**, set **`CORS_ORIGIN`** to your **frontend** origin (scheme + host, e.g. `https://your-frontend.dcdeploy.cloud`) and redeploy the API if needed.
+2. Confirm network calls: same-origin `/api/...` → rewritten to `API_UPSTREAM`.
+3. On the **API**, set **`CORS_ORIGIN`** to the **frontend** origin and redeploy the API if needed.
 
 ---
 
