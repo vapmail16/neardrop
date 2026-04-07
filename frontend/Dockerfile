@@ -23,10 +23,14 @@ ARG GIT_REPO=https://github.com/vapmail16/neardrop.git
 ARG GIT_REF=main
 RUN git clone --depth 1 --branch "${GIT_REF}" "${GIT_REPO}" /tmp/neardrop && \
     mkdir -p /app/backend/packages && \
+    cp /tmp/neardrop/backend/tsconfig.base.json /app/backend/tsconfig.base.json && \
     cp -r /tmp/neardrop/backend/packages/shared /app/backend/packages/shared
 
 FROM base AS builder
 COPY --from=shared-fetch /app/backend /app/backend
+# @neardrop/shared exposes dist/ only; Next typecheck needs compiled output.
+WORKDIR /app/backend/packages/shared
+RUN npm install && npm run build
 WORKDIR /app/frontend
 COPY package.json package-lock.json ./
 RUN npm ci
