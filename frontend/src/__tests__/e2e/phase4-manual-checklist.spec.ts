@@ -33,13 +33,13 @@ test.describe('Phase 4 — MANUAL_TEST_PHASE_4 §2', () => {
   test('2.1 home — NearDrop heading and Register / Sign in / Carrier dashboard links', async ({ page }) => {
     await page.goto('/');
     await expect(page.getByRole('heading', { name: 'NearDrop' })).toBeVisible({ timeout: 30_000 });
-    await expect(page.getByRole('link', { name: 'Register (carrier)' })).toBeVisible();
-    await expect(page.getByRole('link', { name: 'Register (customer)' })).toBeVisible();
-    await expect(page.getByRole('link', { name: 'Register (affiliate)' })).toBeVisible();
-    await expect(page.getByRole('link', { name: 'Sign in (carrier)' })).toBeVisible();
-    await expect(page.getByRole('link', { name: 'Sign in (customer)' })).toBeVisible();
-    await expect(page.getByRole('link', { name: 'Sign in (affiliate)' })).toBeVisible();
-    await expect(page.getByRole('link', { name: 'Sign in (ops)' })).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Register as carrier' })).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Register as customer' })).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Register as affiliate' })).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Sign in as carrier' })).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Sign in as customer' })).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Sign in as affiliate' })).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Operations sign in' })).toBeVisible();
     await expect(page.getByRole('link', { name: /carrier dashboard/i })).toBeVisible();
     await expect(page.getByRole('link', { name: /customer dashboard/i })).toBeVisible();
     await expect(page.getByRole('link', { name: /affiliate dashboard/i })).toBeVisible();
