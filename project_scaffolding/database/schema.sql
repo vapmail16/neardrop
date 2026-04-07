@@ -1,0 +1,3 @@
+-- Reference snapshot: authoritative schema is Version-controlled via Knex migrations.
+-- See: apps/api/src/database/migrations/20260402140000_initial_schema.cjs
+-- After `npm run migrate`, you can `pg_dump --schema-only` into this file if desired.
