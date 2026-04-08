@@ -1,16 +1,5 @@
-import { Suspense } from 'react';
-import { CustomerRegisterForm } from './CustomerRegisterForm';
+import { redirect } from 'next/navigation';
 
 export default function CustomerRegisterPage() {
-  return (
-    <Suspense
-      fallback={
-        <main className="p-8">
-          <p className="text-neutral-600">Loading...</p>
-        </main>
-      }
-    >
-      <CustomerRegisterForm />
-    </Suspense>
-  );
+  redirect('/register?role=customer');
 }

@@ -6,7 +6,8 @@ Plan and process: `docs/NEARDROP_MVP_IMPLEMENTATION_PLAN.md`.
 
 ## Structure
 
-- `backend/` — Fastify API, Knex migrations, and **`backend/packages/shared`** (TypeScript types, Zod schemas, constants) linked as `@neardrop/shared`.
+- `backend/` — Fastify API, Knex migrations, and canonical **`backend/packages/shared`** (TypeScript types, Zod schemas, constants) linked as `@neardrop/shared`.
+- `frontend/packages/shared/` — frontend-local shared package copy used for self-contained frontend builds/deployments.
 - `frontend/` — Next.js 14 App Router (portal route groups).
 - `docs/` — Architecture, MVP plan, API notes, issue log, **[Phase 0 exit evidence](docs/evidence/phase-0-exit-gates.md)**, manual test checklists, and **[example reference material](docs/example_documents/README.md)** (non-normative).
 - `backend/database/` — Schema reference snapshot; **migrations** live under `backend/src/database/migrations/`.
@@ -14,7 +15,7 @@ Plan and process: `docs/NEARDROP_MVP_IMPLEMENTATION_PLAN.md`.
 
 **DCDeploy:** Images build **on DCDeploy** (no local Docker required).  
 - **API:** Context subdirectory **`backend/`**, Dockerfile **`Dockerfile`** inside it (mahimapareek-style). Set **`JWT_SECRET`** + **`DATABASE_URL`** in the service env or the container exits on boot — see **`docs/BACKEND_DEPLOYMENT_GUIDE.md`**, **`backend/DCDeploy_ENV_VARS.md`**.  
-- **Web:** Context **`./frontend`**, Dockerfile **`./Dockerfile`** (Dockerfile clones the repo for `backend/packages/shared`); container port **`3000`** by default — see **`docs/FRONTEND_DEPLOYMENT_GUIDE.md`**, **`frontend/DCDeploy_ENV_VARS.md`**.  
+- **Web:** Context **`./frontend`**, Dockerfile **`./Dockerfile`** (self-contained; uses `frontend/packages/shared`); container port **`3000`** by default — see **`docs/FRONTEND_DEPLOYMENT_GUIDE.md`**, **`frontend/DCDeploy_ENV_VARS.md`**.
 - **Checklist:** **`docs/DEPLOYMENT_CHECKLIST.md`**.
 
 Run **`npm install` and all `npm run …` commands from `backend/` or `frontend/`** as documented below (not from the repo root).
@@ -103,6 +104,11 @@ npm run migrate:rollback   # dev only
 
 ## Commands
 
+### While coding vs before merge
+
+- **While coding:** run only what you touched, e.g. `cd frontend && npm run test:file -- "src/path/to/File.test.tsx"` or `cd backend && npx vitest run path/to/file.test.ts`.
+- **Before merge / release (full gates):** with PostgreSQL up and `backend/.env` set, run **`cd backend && npm run verify:release`** (migrate → DB integration → Vitest count gate on **backend + frontend**), then **`cd frontend && npm run verify:release`** (lint → typecheck → build → Playwright). The second step skips duplicate frontend unit tests because `test:phase8-count-gate` already ran `frontend` Vitest.
+
 ### Backend (`cd backend`)
 
 | Command | Description |
@@ -118,6 +124,7 @@ npm run migrate:rollback   # dev only
 | `npm run seed:demo` | Demo seed |
 | `npm run record:phase0-evidence` | Refresh `docs/evidence/phase-0-exit-gates.md` |
 | `npm run test:phase8-count-gate` | Vitest count gate (backend + frontend totals) |
+| `npm run verify:release` | **Pre-merge:** lint → typecheck → migrate → `test:integration` → `test:phase8-count-gate` |
 | `npm run verify-env` | Check required env vars |
 
 ### Frontend (`cd frontend`)
@@ -127,8 +134,10 @@ npm run migrate:rollback   # dev only
 | `npm run dev` | Next.js on **3020** |
 | `npm run build` | Production build |
 | `npm run lint` / `npm run typecheck` / `npm run test` | Quality gates |
+| `npm run test:file` | Scoped Vitest: `npm run test:file -- "src/…/My.test.tsx"` (quote paths with parentheses) |
 | `npm run test:e2e` | Playwright (starts API + web via config unless reuse is enabled) |
 | `npm run verify` | lint → typecheck → test → build |
+| `npm run verify:release` | **Pre-merge (after `backend` `verify:release`):** lint → typecheck → build → Playwright |
 
 ### TDD / Phase 0 evidence
 

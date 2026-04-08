@@ -7,7 +7,6 @@ import { expect, test, type Page } from '@playwright/test';
 import { ensureCarrierE2ECreds } from './ensure-carrier-creds';
 import {
   gotoLoginTypeAndExpectDashboard,
-  typeLoginAndExpectCarrierOnlyAlert,
   typeLoginAndExpectDashboard,
 } from './submit-login-expect-dashboard';
 
@@ -30,20 +29,12 @@ function apiOrigin(): string {
 }
 
 test.describe('Phase 4 — MANUAL_TEST_PHASE_4 §2', () => {
-  test('2.1 home — NearDrop heading and Register / Sign in / Carrier dashboard links', async ({ page }) => {
+  test('2.1 home — NearDrop heading and Login / Register in top navigation', async ({ page }) => {
     await page.goto('/');
     await expect(page.getByRole('heading', { name: 'NearDrop' })).toBeVisible({ timeout: 30_000 });
-    await expect(page.getByRole('link', { name: 'Register as carrier' })).toBeVisible();
-    await expect(page.getByRole('link', { name: 'Register as customer' })).toBeVisible();
-    await expect(page.getByRole('link', { name: 'Register as affiliate' })).toBeVisible();
-    await expect(page.getByRole('link', { name: 'Sign in as carrier' })).toBeVisible();
-    await expect(page.getByRole('link', { name: 'Sign in as customer' })).toBeVisible();
-    await expect(page.getByRole('link', { name: 'Sign in as affiliate' })).toBeVisible();
-    await expect(page.getByRole('link', { name: 'Operations sign in' })).toBeVisible();
-    await expect(page.getByRole('link', { name: /carrier dashboard/i })).toBeVisible();
-    await expect(page.getByRole('link', { name: /customer dashboard/i })).toBeVisible();
-    await expect(page.getByRole('link', { name: /affiliate dashboard/i })).toBeVisible();
-    await expect(page.getByRole('link', { name: /ops dashboard/i })).toBeVisible();
+    const topNav = page.getByRole('navigation', { name: 'Home top navigation' });
+    await expect(topNav.getByRole('link', { name: 'Login' })).toBeVisible();
+    await expect(topNav.getByRole('link', { name: 'Register' })).toBeVisible();
   });
 
   test.describe.serial('2.2–2.3 registration and clean-context login', () => {
@@ -64,7 +55,7 @@ test.describe('Phase 4 — MANUAL_TEST_PHASE_4 §2', () => {
       await expect(page.getByTestId('carrier-nav-user')).toContainText(/phase/i);
     });
 
-    test('2.3 new browser context — sign in and session survives reload', async ({ browser }) => {
+    test('2.3 new browser context — login and session survives reload', async ({ browser }) => {
       test.setTimeout(60_000);
       const context = await browser.newContext();
       const page = await context.newPage();
@@ -129,7 +120,7 @@ test.describe('Phase 4 — MANUAL_TEST_PHASE_4 §2', () => {
     await expect(page).toHaveURL(/\/login\?/, { timeout: 15_000 });
   });
 
-  test('2.10 non-carrier login shows carrier-only message', async ({ page }) => {
+  test('2.10 customer login redirects to customer dashboard', async ({ page }) => {
     test.setTimeout(60_000);
     const custEmail = `p4-cust-${Date.now()}@example.test`;
     const custPassword = 'CustomerOnly!99Good';
@@ -148,11 +139,11 @@ test.describe('Phase 4 — MANUAL_TEST_PHASE_4 §2', () => {
     expect(reg.ok, await reg.text()).toBe(true);
 
     await page.goto('/login', { waitUntil: 'domcontentloaded', timeout: 60_000 });
-    await typeLoginAndExpectCarrierOnlyAlert(
-      page,
-      { email: custEmail, password: custPassword },
-      15_000,
-    );
-    await expect(page).not.toHaveURL(/\/carrier\/dashboard/);
+    await page.getByRole('button', { name: /^customer$/i }).click();
+    await typeLoginAndExpectDashboard(page, /dashboard/i, 15_000, {
+      email: custEmail,
+      password: custPassword,
+    });
+    await expect(page).toHaveURL(/\/customer\/dashboard/, { timeout: 15_000 });
   });
 });

@@ -35,6 +35,15 @@ export class AffiliateReadService {
   }
 
   /** Affiliate pickup location when the customer has a parcel with that affiliate. */
+  /** Ops: read pickup summary by affiliate id (no customer–parcel link check). */
+  async getSummaryByAffiliateIdUnrestricted(affiliateId: string): Promise<AffiliateSummaryPublic> {
+    const summary = await this.summaryByAffiliateId(affiliateId);
+    if (!summary) {
+      throw new AppError('Resource not found', ErrorCodes.NOT_FOUND, 404);
+    }
+    return summary;
+  }
+
   async getSummaryForLinkedCustomer(
     customerUserId: string,
     affiliateId: string,

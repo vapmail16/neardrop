@@ -36,7 +36,7 @@ export function CarrierNav({ user }: { user: UserPublic }) {
 
   return (
     <PortalNavBar
-      roleLabel="Carrier"
+      roleLabel={user.role === 'ops' ? 'Ops · Carrier view' : 'Carrier'}
       links={links}
       userLine={`${user.firstName} ${user.lastName}`}
       userTestId="carrier-nav-user"

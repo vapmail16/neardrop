@@ -20,7 +20,7 @@ export async function registerAffiliateRoutes(
 ): Promise<void> {
   app.get(
     '/api/v1/affiliates/me/earnings',
-    { onRequest: [app.authenticate, app.requireRole('affiliate')] },
+    { onRequest: [app.authenticate, app.requireRole('affiliate', 'ops')] },
     async (request, reply) => {
       const userId = request.authUser!.id;
       const data = await affiliateEarningsRead.getSummaryForAffiliateUser(userId);
@@ -34,7 +34,7 @@ export async function registerAffiliateRoutes(
 
   app.get(
     '/api/v1/affiliates/match',
-    { onRequest: [app.authenticate, app.requireRole('customer')] },
+    { onRequest: [app.authenticate, app.requireRole('customer', 'ops')] },
     async (request, reply) => {
       const userId = request.authUser!.id;
       const affiliate = await affiliateRead.getMatchForCustomerUserId(userId);
@@ -48,7 +48,7 @@ export async function registerAffiliateRoutes(
 
   app.get(
     '/api/v1/affiliates/:affiliateId/summary',
-    { onRequest: [app.authenticate, app.requireRole('customer')] },
+    { onRequest: [app.authenticate, app.requireRole('customer', 'ops')] },
     async (request, reply) => {
       let affiliateId: string;
       try {
@@ -57,8 +57,11 @@ export async function registerAffiliateRoutes(
         if (e instanceof ZodError) throw zodToAppError(e);
         throw e;
       }
-      const userId = request.authUser!.id;
-      const affiliate = await affiliateRead.getSummaryForLinkedCustomer(userId, affiliateId);
+      const { role, id: userId } = request.authUser!;
+      const affiliate =
+        role === 'ops'
+          ? await affiliateRead.getSummaryByAffiliateIdUnrestricted(affiliateId)
+          : await affiliateRead.getSummaryForLinkedCustomer(userId, affiliateId);
       return reply.send({
         success: true,
         data: { affiliate },

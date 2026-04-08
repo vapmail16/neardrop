@@ -330,4 +330,100 @@ describe.runIf(run)('Affiliate read routes (PostgreSQL)', () => {
     await app.close();
     await knex.destroy();
   });
+
+  it('ops GET /affiliates/match returns null when ops user has no postcode', async () => {
+    const knex = createKnex();
+    const app = await createApp(knex);
+    const ts = Date.now();
+    const opsEmail = `aff-match-ops-${ts}@example.com`;
+    const strong = 'GoodPassw0rd!';
+
+    const opsReg = await app.inject({
+      method: 'POST',
+      url: '/api/v1/auth/register',
+      payload: {
+        email: opsEmail,
+        password: strong,
+        firstName: 'O',
+        lastName: 'Ps',
+        role: 'ops',
+      },
+    });
+    expect(opsReg.statusCode).toBe(200);
+    const opsCookie = cookieHeaderFromSetCookie(opsReg.headers['set-cookie']);
+
+    const match = await app.inject({
+      method: 'GET',
+      url: '/api/v1/affiliates/match',
+      headers: { cookie: opsCookie },
+    });
+    expect(match.statusCode).toBe(200);
+    const body = match.json() as { success: boolean; data: { affiliate: unknown } };
+    expect(body.success).toBe(true);
+    expect(body.data.affiliate).toBeNull();
+
+    await cleanupScenario(knex, [opsEmail]);
+    await app.close();
+    await knex.destroy();
+  });
+
+  it('ops GET /affiliates/:id/summary returns hub without customer parcel link', async () => {
+    const knex = createKnex();
+    const app = await createApp(knex);
+    const ts = Date.now();
+    const hub = uniqueTestPostcode();
+    const opsEmail = `aff-sum-ops-${ts}@example.com`;
+    const affiliateEmail = `aff-sum-ops-aff-${ts}@example.com`;
+    const strong = 'GoodPassw0rd!';
+
+    const opsReg = await app.inject({
+      method: 'POST',
+      url: '/api/v1/auth/register',
+      payload: {
+        email: opsEmail,
+        password: strong,
+        firstName: 'O',
+        lastName: 'Ps',
+        role: 'ops',
+      },
+    });
+    expect(opsReg.statusCode).toBe(200);
+    const opsCookie = cookieHeaderFromSetCookie(opsReg.headers['set-cookie']);
+
+    const affReg = await app.inject({
+      method: 'POST',
+      url: '/api/v1/auth/register',
+      payload: {
+        email: affiliateEmail,
+        password: strong,
+        firstName: 'Hub',
+        lastName: 'Only',
+        role: 'affiliate',
+        postcode: hub,
+        addressLine1: '9 Ops View Close',
+      },
+    });
+    expect(affReg.statusCode).toBe(200);
+    const affUser = await knex<{ id: string }>('users')
+      .whereRaw('LOWER(email) = LOWER(?)', [affiliateEmail])
+      .first();
+    const affRow = await knex<{ id: string }>('affiliates')
+      .where({ user_id: affUser!.id })
+      .first();
+    expect(affRow?.id).toBeTruthy();
+
+    const sum = await app.inject({
+      method: 'GET',
+      url: `/api/v1/affiliates/${affRow!.id}/summary`,
+      headers: { cookie: opsCookie },
+    });
+    expect(sum.statusCode).toBe(200);
+    const sumBody = sum.json() as { data: { affiliate: { postcode: string; addressLine1: string } } };
+    expect(sumBody.data.affiliate.postcode).toBe(hub);
+    expect(sumBody.data.affiliate.addressLine1).toContain('Ops View');
+
+    await cleanupScenario(knex, [opsEmail, affiliateEmail]);
+    await app.close();
+    await knex.destroy();
+  });
 });

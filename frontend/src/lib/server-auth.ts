@@ -35,7 +35,7 @@ export async function requireCarrierSession(): Promise<UserPublic> {
     .map((c) => `${c.name}=${c.value}`)
     .join('; ');
 
-  const result = await fetchMeUserFromApi(getInternalApiOrigin(), cookieHeader, 'carrier');
+  const result = await fetchMeUserFromApi(getInternalApiOrigin(), cookieHeader, ['carrier', 'ops']);
 
   if (result.ok) {
     return result.user;
@@ -53,7 +53,7 @@ export async function requireCustomerSession(): Promise<UserPublic> {
     .map((c) => `${c.name}=${c.value}`)
     .join('; ');
 
-  const result = await fetchMeUserFromApi(getInternalApiOrigin(), cookieHeader, 'customer');
+  const result = await fetchMeUserFromApi(getInternalApiOrigin(), cookieHeader, ['customer', 'ops']);
 
   if (result.ok) {
     return result.user;
@@ -71,7 +71,7 @@ export async function requireAffiliateSession(): Promise<UserPublic> {
     .map((c) => `${c.name}=${c.value}`)
     .join('; ');
 
-  const result = await fetchMeUserFromApi(getInternalApiOrigin(), cookieHeader, 'affiliate');
+  const result = await fetchMeUserFromApi(getInternalApiOrigin(), cookieHeader, ['affiliate', 'ops']);
 
   if (result.ok) {
     return result.user;

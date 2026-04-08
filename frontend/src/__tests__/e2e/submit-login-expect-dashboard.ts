@@ -31,7 +31,7 @@ export async function gotoLoginTypeAndExpectDashboard(
     (r) => r.url().includes('/api/v1/auth/login') && r.request().method() === 'POST',
     { timeout: timeoutMs },
   );
-  await page.getByRole('button', { name: /sign in/i }).click();
+  await page.getByRole('button', { name: /login/i }).click();
   const resp = await loginWait;
   try {
     await page.waitForURL(dashboardPath, { timeout: timeoutMs });
@@ -65,7 +65,7 @@ export async function typeLoginAndExpectDashboard(
     (r) => r.url().includes('/api/v1/auth/login') && r.request().method() === 'POST',
     { timeout: timeoutMs },
   );
-  await page.getByRole('button', { name: /sign in/i }).click();
+  await page.getByRole('button', { name: /login/i }).click();
   const resp = await loginWait;
   try {
     await page.waitForURL(dashboardPath, { timeout: timeoutMs });
@@ -98,7 +98,7 @@ export async function typeLoginAndExpectCarrierOnlyAlert(
     (r) => r.url().includes('/api/v1/auth/login') && r.request().method() === 'POST',
     { timeout: timeoutMs },
   );
-  await page.getByRole('button', { name: /sign in/i }).click();
+  await page.getByRole('button', { name: /login/i }).click();
   await loginWait;
   await expect(page.locator('main form p[role="alert"]')).toContainText(/carrier accounts only/i, {
     timeout: timeoutMs,

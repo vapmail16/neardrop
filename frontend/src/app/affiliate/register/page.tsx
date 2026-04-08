@@ -1,5 +1,5 @@
-import { AffiliateRegisterForm } from './AffiliateRegisterForm';
+import { redirect } from 'next/navigation';
 
 export default function AffiliateRegisterPage() {
-  return <AffiliateRegisterForm />;
+  redirect('/register?role=affiliate');
 }

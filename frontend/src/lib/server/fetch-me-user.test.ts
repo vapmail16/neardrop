@@ -150,4 +150,19 @@ describe('fetchMeUserFromApi', () => {
       user: customer,
     });
   });
+
+  it('returns ok when user role is ops and allowed roles include carrier', async () => {
+    const opsUser: UserPublic = { ...carrierUser, role: 'ops' };
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({ success: true, data: { user: opsUser } }),
+      }),
+    );
+    await expect(fetchMeUserFromApi('http://api.test', 'c=1', ['carrier', 'ops'])).resolves.toEqual({
+      ok: true,
+      user: opsUser,
+    });
+  });
 });

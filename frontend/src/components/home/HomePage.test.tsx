@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import { HomePage } from './HomePage';
 
@@ -21,50 +21,31 @@ describe('HomePage', () => {
     expect(screen.getByText(/Neighbourhood last-mile delivery/i)).toBeInTheDocument();
   });
 
-  it('shows role section heading and subheading', () => {
+  it('shows hero callout and short product description', () => {
     render(<HomePage />);
-    expect(screen.getByRole('heading', { level: 2, name: /choose your role/i })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 2, name: /delivery made simple/i })).toBeInTheDocument();
     expect(
-      screen.getByText(/NearDrop connects three sides of every delivery/i),
+      screen.getByText(/one platform for carriers, affiliates, customers, and ops/i),
     ).toBeInTheDocument();
   });
 
-  it('shows role cards for carrier, customer, affiliate with updated copy', () => {
+  it('keeps top navigation with single login and unified register', () => {
     render(<HomePage />);
-    expect(screen.getByRole('heading', { level: 3, name: /^carrier$/i })).toBeInTheDocument();
-    expect(screen.getByRole('heading', { level: 3, name: /^customer$/i })).toBeInTheDocument();
-    expect(screen.getByRole('heading', { level: 3, name: /^affiliate$/i })).toBeInTheDocument();
-    expect(
-      screen.getByText(/Upload manifests, manage parcel status, and coordinate deliveries/i),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText(/Track your parcels, view your collection QR code, and find your nearest/i),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText(/Receive parcels at your location and complete handover to customers/i),
-    ).toBeInTheDocument();
+    const nav = screen.getByRole('navigation', { name: /home top navigation/i });
+    expect(within(nav).getByRole('link', { name: /^login$/i })).toHaveAttribute('href', '/login');
+    expect(within(nav).getByRole('link', { name: /^register$/i })).toHaveAttribute('href', '/register');
   });
 
-  it('links role actions to correct auth pages (accessible names)', () => {
+  it('exposes only one login link on the whole home page', () => {
     render(<HomePage />);
-    expect(screen.getByRole('link', { name: /register as carrier/i })).toHaveAttribute('href', '/register');
-    expect(screen.getByRole('link', { name: /sign in as carrier/i })).toHaveAttribute('href', '/login');
-    expect(screen.getByRole('link', { name: /register as customer/i })).toHaveAttribute(
-      'href',
-      '/customer/register',
-    );
-    expect(screen.getByRole('link', { name: /sign in as customer/i })).toHaveAttribute(
-      'href',
-      '/login?portal=customer',
-    );
-    expect(screen.getByRole('link', { name: /register as affiliate/i })).toHaveAttribute(
-      'href',
-      '/affiliate/register',
-    );
-    expect(screen.getByRole('link', { name: /sign in as affiliate/i })).toHaveAttribute(
-      'href',
-      '/login?portal=affiliate',
-    );
+    expect(screen.getAllByRole('link', { name: /^login$/i })).toHaveLength(1);
+  });
+
+  it('exposes only one register link on the whole home page (top nav)', () => {
+    render(<HomePage />);
+    expect(screen.getAllByRole('link', { name: /^register$/i })).toHaveLength(1);
+    const nav = screen.getByRole('navigation', { name: /home top navigation/i });
+    expect(within(nav).getByRole('link', { name: /^register$/i })).toHaveAttribute('href', '/register');
   });
 
   it('renders How it works steps', () => {
@@ -79,23 +60,21 @@ describe('HomePage', () => {
     ).toBeInTheDocument();
   });
 
-  it('renders footer with operations link and copyright', () => {
+  it('renders footer with copyright only', () => {
     render(<HomePage />);
-    expect(screen.getByRole('contentinfo')).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /operations sign in/i })).toHaveAttribute(
-      'href',
-      '/login?portal=ops',
-    );
+    const footer = screen.getByRole('contentinfo');
+    expect(footer).toBeInTheDocument();
+    expect(within(footer).queryByRole('link', { name: /^login$/i })).not.toBeInTheDocument();
     expect(screen.getByText(/©\s*2026\s*NearDrop/i)).toBeInTheDocument();
   });
 
-  it('keeps quick dashboard links for navigation', () => {
+  it('does not render quick dashboard links in footer', () => {
     render(<HomePage />);
-    const nav = screen.getByRole('navigation', { name: /quick dashboard links/i });
-    expect(nav).toBeInTheDocument();
-    expect(nav.querySelector('a[href="/carrier/dashboard"]')).toBeTruthy();
-    expect(nav.querySelector('a[href="/customer/dashboard"]')).toBeTruthy();
-    expect(nav.querySelector('a[href="/affiliate/dashboard"]')).toBeTruthy();
-    expect(nav.querySelector('a[href="/ops/dashboard"]')).toBeTruthy();
+    expect(screen.queryByRole('navigation', { name: /quick dashboard links/i })).not.toBeInTheDocument();
+  });
+
+  it('does not render seeded credentials section on home page', () => {
+    render(<HomePage />);
+    expect(screen.queryByText(/demo seeded login/i)).not.toBeInTheDocument();
   });
 });

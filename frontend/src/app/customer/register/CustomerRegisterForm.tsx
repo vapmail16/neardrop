@@ -136,8 +136,8 @@ export function CustomerRegisterForm() {
       </form>
       <p className="text-sm text-neutral-600">
         Already have an account?{' '}
-        <Link href="/login?portal=customer" className="font-medium text-brand-700 hover:text-brand-800">
-          Sign in
+        <Link href="/login" className="font-medium text-brand-700 hover:text-brand-800">
+          Login
         </Link>
       </p>
     </main>

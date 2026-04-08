@@ -17,10 +17,12 @@
     "test:integration": "RUN_DB_INTEGRATION=1 vitest run --no-file-parallelism --testTimeout 120000 src/database/schema.integration.test.ts src/repositories/user.repository.integration.test.ts src/routes/auth.flow.integration.test.ts src/routes/health.db.integration.test.ts src/routes/parcel.phase2.integration.test.ts src/routes/parcel.phase3.integration.test.ts src/routes/affiliates.integration.test.ts src/routes/ops.integration.test.ts",
     "test:coverage": "npm run test:coverage --prefix packages/shared && vitest run --coverage",
     "test:phase8-count-gate": "node scripts/turbo-test-min-count.mjs",
+    "verify:release": "npm run lint && npm run typecheck && npm run migrate && npm run test:integration && npm run test:phase8-count-gate",
     "migrate": "knex migrate:latest --knexfile knexfile.cjs",
     "migrate:rollback": "knex migrate:rollback --knexfile knexfile.cjs",
     "migrate:latest": "knex migrate:latest --knexfile knexfile.cjs",
     "seed:demo": "tsx src/scripts/run-demo-seed.ts",
+    "seed:demo-portals": "tsx src/scripts/run-ensure-demo-portals.ts",
     "record:phase0-evidence": "bash scripts/record-phase-gates.sh",
     "verify-env": "node scripts/verify-env.mjs"
   },

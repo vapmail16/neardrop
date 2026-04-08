@@ -90,7 +90,7 @@ export async function registerParcelRoutes(
 
   app.get(
     '/api/v1/parcels/:parcelId/collection-qr',
-    { onRequest: [app.authenticate, app.requireRole('customer')] },
+    { onRequest: [app.authenticate, app.requireRole('customer', 'ops')] },
     async (request, reply) => {
       let parcelId;
       try {
@@ -99,8 +99,8 @@ export async function registerParcelRoutes(
         if (e instanceof ZodError) throw zodToAppError(e);
         throw e;
       }
-      const userId = request.authUser!.id;
-      const data = await parcelService.issueCustomerCollectionQr(userId, parcelId);
+      const { role, id } = request.authUser!;
+      const data = await parcelService.issueCustomerCollectionQr(role, id, parcelId);
       return reply.send({
         success: true,
         data,

@@ -81,33 +81,6 @@ function IconQr({ className = 'h-6 w-6' }: { className?: string }) {
 }
 
 export function HomePage() {
-  const roleCards = [
-    {
-      role: 'Carrier',
-      subtitle:
-        'Upload manifests, manage parcel status, and coordinate deliveries to local pickup points.',
-      registerHref: '/register',
-      loginHref: '/login',
-      Icon: IconTruck,
-    },
-    {
-      role: 'Customer',
-      subtitle:
-        'Track your parcels, view your collection QR code, and find your nearest pickup location.',
-      registerHref: '/customer/register',
-      loginHref: '/login?portal=customer',
-      Icon: IconBag,
-    },
-    {
-      role: 'Affiliate',
-      subtitle:
-        'Receive parcels at your location and complete handover to customers with QR verification.',
-      registerHref: '/affiliate/register',
-      loginHref: '/login?portal=affiliate',
-      Icon: IconStore,
-    },
-  ] as const;
-
   const howSteps = [
     {
       title: 'Carrier sends',
@@ -128,6 +101,25 @@ export function HomePage() {
 
   return (
     <main data-testid="home-root" className="flex min-h-screen flex-col bg-white">
+      <div className="border-b border-neutral-200/80 bg-white">
+        <nav
+          aria-label="Home top navigation"
+          className="mx-auto flex max-w-content items-center justify-between px-4 py-3 sm:px-6"
+        >
+          <div className="flex items-center gap-2 text-brand-800">
+            <IconCube className="h-7 w-7 text-brand-600" />
+            <span className="text-base font-semibold tracking-tight">NearDrop</span>
+          </div>
+          <div className="flex flex-wrap items-center justify-end gap-2">
+            <a href="/login" className={`${dsButtonClassName('primary')} min-h-9 px-3 py-1.5 text-xs`}>
+              Login
+            </a>
+            <a href="/register" className={`${dsButtonClassName('secondary')} min-h-9 px-3 py-1.5 text-xs`}>
+              Register
+            </a>
+          </div>
+        </nav>
+      </div>
       <header className="bg-neutral-900 px-4 py-14 text-center sm:py-20">
         <div className="mx-auto flex max-w-content flex-col items-center gap-4">
           <div className="flex items-center gap-3 text-brand-400">
@@ -144,50 +136,38 @@ export function HomePage() {
         </div>
       </header>
 
-      <section
-        className="mx-auto w-full max-w-content px-4 py-12 sm:px-6 sm:py-16"
-        aria-label="Role selection menu"
-      >
-        <div className="mb-10 text-center">
+      <section className="mx-auto w-full max-w-content px-4 py-12 sm:px-6 sm:py-16">
+        <div className="mb-8 text-center">
           <h2 className="text-2xl font-bold tracking-tight text-neutral-900 sm:text-3xl">
-            Choose your role
+            Delivery made simple
           </h2>
-          <p className="mx-auto mt-3 max-w-xl text-sm text-neutral-600 sm:text-base">
-            NearDrop connects three sides of every delivery. Pick your role to get started.
+          <p className="mx-auto mt-3 max-w-2xl text-sm text-neutral-600 sm:text-base">
+            One platform for carriers, affiliates, customers, and ops to run parcel handover end to end.
           </p>
         </div>
-        <ul className="grid gap-6 lg:grid-cols-3">
-          {roleCards.map((card) => {
-            const RIcon = card.Icon;
-            return (
-              <li key={card.role}>
-                <DsCard className="flex h-full flex-col" padding="lg">
-                  <div className="mb-4 inline-flex rounded-xl bg-brand-50 p-3 text-brand-700">
-                    <RIcon className="h-6 w-6" />
-                  </div>
-                  <h3 className="text-lg font-semibold text-neutral-900">{card.role}</h3>
-                  <p className="mt-2 flex-1 text-sm leading-relaxed text-neutral-600">{card.subtitle}</p>
-                  <div className="mt-6 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
-                    <a
-                      href={card.loginHref}
-                      aria-label={`Sign in as ${card.role.toLowerCase()}`}
-                      className={`${dsButtonClassName('primary')} w-full justify-center sm:w-auto`}
-                    >
-                      Sign in
-                    </a>
-                    <a
-                      href={card.registerHref}
-                      aria-label={`Register as ${card.role.toLowerCase()}`}
-                      className={`${dsButtonClassName('secondary')} w-full justify-center sm:w-auto`}
-                    >
-                      Register
-                    </a>
-                  </div>
-                </DsCard>
-              </li>
-            );
-          })}
-        </ul>
+        <div className="grid gap-5 md:grid-cols-3">
+          <DsCard padding="md" className="flex items-start gap-3">
+            <IconTruck className="h-5 w-5 text-brand-700" />
+            <div>
+              <p className="font-semibold text-neutral-900">Carriers</p>
+              <p className="text-sm text-neutral-600">Upload manifests and track parcel progress.</p>
+            </div>
+          </DsCard>
+          <DsCard padding="md" className="flex items-start gap-3">
+            <IconStore className="h-5 w-5 text-brand-700" />
+            <div>
+              <p className="font-semibold text-neutral-900">Affiliates</p>
+              <p className="text-sm text-neutral-600">Receive parcels and hand over via QR verification.</p>
+            </div>
+          </DsCard>
+          <DsCard padding="md" className="flex items-start gap-3">
+            <IconBag className="h-5 w-5 text-brand-700" />
+            <div>
+              <p className="font-semibold text-neutral-900">Customers</p>
+              <p className="text-sm text-neutral-600">Track parcels and collect from local pickup points.</p>
+            </div>
+          </DsCard>
+        </div>
       </section>
 
       <section
@@ -227,36 +207,8 @@ export function HomePage() {
             <IconCube className="h-8 w-8 text-brand-600" />
             <span className="text-base font-semibold tracking-tight">NearDrop</span>
           </div>
-          <div className="flex flex-col gap-3 sm:items-end">
-            <a
-              href="/login?portal=ops"
-              className="text-sm font-medium text-brand-700 hover:text-brand-800"
-            >
-              Operations sign in
-            </a>
-            <p className="text-xs text-neutral-500">© 2026 NearDrop</p>
-          </div>
+          <p className="text-xs text-neutral-500 sm:text-right">© 2026 NearDrop</p>
         </div>
-        <nav
-          className="mx-auto mt-6 max-w-content border-t border-neutral-100 pt-6"
-          aria-label="Quick dashboard links"
-        >
-          <p className="mb-2 text-xs font-medium text-neutral-500">Quick links</p>
-          <div className="flex flex-wrap gap-x-4 gap-y-2 text-sm text-neutral-600">
-            <a href="/carrier/dashboard" className="hover:text-neutral-900">
-              Carrier dashboard
-            </a>
-            <a href="/customer/dashboard" className="hover:text-neutral-900">
-              Customer dashboard
-            </a>
-            <a href="/affiliate/dashboard" className="hover:text-neutral-900">
-              Affiliate dashboard
-            </a>
-            <a href="/ops/dashboard" className="hover:text-neutral-900">
-              Ops dashboard
-            </a>
-          </div>
-        </nav>
       </footer>
     </main>
   );

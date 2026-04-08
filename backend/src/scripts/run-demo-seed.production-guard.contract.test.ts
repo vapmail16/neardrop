@@ -21,4 +21,18 @@ describe('run-demo-seed production guard (Phase 8 manual §3.5)', () => {
     expect(res.status, `${res.stderr}\n${res.stdout}`).toBe(1);
     expect(`${res.stderr}${res.stdout}`).toMatch(/refusing demo seed/i);
   });
+
+  it('portal-only script exits 1 in production without ALLOW_PRODUCTION_DEMO_SEED', () => {
+    const env: NodeJS.ProcessEnv = { ...process.env, NODE_ENV: 'production' };
+    delete env['ALLOW_PRODUCTION_DEMO_SEED'];
+
+    const res = spawnSync('npx', ['tsx', 'src/scripts/run-ensure-demo-portals.ts'], {
+      cwd: apiPackageRoot,
+      env,
+      encoding: 'utf8',
+    });
+
+    expect(res.status, `${res.stderr}\n${res.stdout}`).toBe(1);
+    expect(`${res.stderr}${res.stdout}`).toMatch(/refusing demo portal seed/i);
+  });
 });

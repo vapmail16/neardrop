@@ -35,7 +35,7 @@ export function CustomerNav({ user }: { user: UserPublic }) {
 
   return (
     <PortalNavBar
-      roleLabel="Customer"
+      roleLabel={user.role === 'ops' ? 'Ops · Customer view' : 'Customer'}
       links={links}
       userLine={`${user.firstName} ${user.lastName}`}
       userTestId="customer-nav-user"

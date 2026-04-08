@@ -11,4 +11,10 @@ describe('run-demo-seed CLI contract', () => {
     const pkg = JSON.parse(readFileSync(pkgPath, 'utf8')) as { scripts: Record<string, string> };
     expect(pkg.scripts['seed:demo']).toContain('run-demo-seed');
   });
+
+  it('exposes seed:demo-portals for lightweight portal-only demo users', () => {
+    const pkgPath = path.join(__dirname, '../../package.json');
+    const pkg = JSON.parse(readFileSync(pkgPath, 'utf8')) as { scripts: Record<string, string> };
+    expect(pkg.scripts['seed:demo-portals']).toContain('run-ensure-demo-portals');
+  });
 });

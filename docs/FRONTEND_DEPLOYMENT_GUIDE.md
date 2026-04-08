@@ -9,9 +9,10 @@
 
 DCDeploy is configured like the backend: **context** = **`./frontend`**, **Dockerfile** = **`./Dockerfile`**.
 
-`@neardrop/web` still depends on **`file:../backend/packages/shared`**. The tarball for `./frontend` does **not** include `../backend`, so the Dockerfile **clones the same Git repository** during build and copies `backend/packages/shared` into the image before `npm ci` / `npm run build`.
+`@neardrop/web` depends on **`file:./packages/shared`**. The shared package is included in `frontend/packages/shared`,
+so the Docker build for context `./frontend` is self-contained.
 
-**Build args:** `GIT_REPO`, `GIT_REF` (defaults target this repo’s `main`); `API_UPSTREAM` for production API URL. See `frontend/DCDeploy_ENV_VARS.md`.
+**Build args:** `API_UPSTREAM` for production API URL. See `frontend/DCDeploy_ENV_VARS.md`.
 
 ---
 
@@ -33,9 +34,8 @@ API_UPSTREAM=https://YOUR-API-HOST
 
 ## Image layout
 
-1. **`shared-fetch`:** `git clone` + copy `backend/packages/shared` → `/app/backend/packages/shared`.
-2. **`builder`:** `npm ci` and `npm run build` in `/app/frontend`.
-3. **`runner`:** Copy `.next/standalone` to `/app`, copy static files to **`frontend/.next/static`** (standalone server path is **`frontend/server.js`**), run **`node frontend/server.js`** on **`PORT`** (default **3000**).
+1. **`builder`:** build `frontend/packages/shared`, then `npm ci` and `npm run build` in `/app/frontend`.
+2. **`runner`:** Copy `.next/standalone` to `/app`, copy static files to **`frontend/.next/static`** (standalone server path is **`frontend/server.js`**), run **`node frontend/server.js`** on **`PORT`** (default **3000**).
 
 **`.dockerignore`** in `frontend/` trims the build context.
 

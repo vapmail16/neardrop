@@ -4,10 +4,15 @@ export type FetchMeUserResult =
   | { ok: true; user: UserPublic }
   | { ok: false; kind: 'unauthorized' | 'invalid_response' | 'wrong_role' };
 
+function roleMatches(userRole: UserRole, allowed: UserRole | readonly UserRole[]): boolean {
+  const list = Array.isArray(allowed) ? allowed : [allowed];
+  return list.includes(userRole);
+}
+
 export async function fetchMeUserFromApi(
   apiOrigin: string,
   cookieHeader: string,
-  expectedRole: UserRole,
+  allowedRoles: UserRole | readonly UserRole[],
 ): Promise<FetchMeUserResult> {
   const trimmed = cookieHeader.trim();
   if (!trimmed) {
@@ -36,7 +41,7 @@ export async function fetchMeUserFromApi(
     return { ok: false, kind: 'invalid_response' };
   }
 
-  if (parsed.data.user.role !== expectedRole) {
+  if (!roleMatches(parsed.data.user.role, allowedRoles)) {
     return { ok: false, kind: 'wrong_role' };
   }
 

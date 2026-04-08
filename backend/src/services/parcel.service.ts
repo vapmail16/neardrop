@@ -264,7 +264,8 @@ export class ParcelService {
    * Customer-facing JWT for QR display (web or native). Stored server-side for single-use verification.
    */
   async issueCustomerCollectionQr(
-    customerUserId: string,
+    viewerRole: UserRole,
+    viewerUserId: string,
     parcelId: string,
   ): Promise<{ qrToken: string; expiresAt: string }> {
     const pr = new ParcelRepository(this.knex);
@@ -272,9 +273,7 @@ export class ParcelService {
     if (!parcel) {
       throw new AppError('Resource not found', ErrorCodes.NOT_FOUND, 404);
     }
-    if (parcel.customer_id !== customerUserId) {
-      throw new AppError('Forbidden', ErrorCodes.FORBIDDEN, 403);
-    }
+    await this.assertParcelAccess(parcel, viewerRole, viewerUserId);
     if (parcel.status !== 'ready_to_collect') {
       throw new AppError('Parcel is not ready for collection', ErrorCodes.QR_NOT_READY, 409);
     }

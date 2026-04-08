@@ -37,7 +37,7 @@ export function AffiliateNav({ user }: { user: UserPublic }) {
 
   return (
     <PortalNavBar
-      roleLabel="Affiliate"
+      roleLabel={user.role === 'ops' ? 'Ops · Affiliate view' : 'Affiliate'}
       links={links}
       userLine={`${user.firstName} ${user.lastName}`}
       userTestId="affiliate-nav-user"

@@ -178,8 +178,8 @@ export function AffiliateRegisterForm() {
       </form>
       <p className="text-sm text-neutral-600">
         Already have an account?{' '}
-        <Link href="/login?portal=affiliate" className="font-medium text-neutral-900 underline">
-          Sign in
+        <Link href="/login" className="font-medium text-neutral-900 underline">
+          Login
         </Link>
       </p>
     </main>

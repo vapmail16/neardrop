@@ -4,7 +4,6 @@ import { defineConfig } from '@playwright/test';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const frontendRoot = path.resolve(__dirname);
-const repoRoot = path.resolve(__dirname, '..');
 
 /**
  * E2E (Playwright) — ESM config (avoids Playwright loading `.ts` as CJS with `import.meta`).

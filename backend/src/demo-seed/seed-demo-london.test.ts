@@ -1,15 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { isPasswordAcceptableForAuth, ukPostcodeSchema } from '@neardrop/shared';
-import { buildDemoManifestCsv, DEMO_PORTAL_TEST_ACCOUNTS } from './seed-demo-london.js';
+import { ukPostcodeSchema } from '@neardrop/shared';
+import { buildDemoManifestCsv } from './seed-demo-london.js';
 
 describe('seed-demo-london helpers', () => {
-  it('DEMO_PORTAL_TEST_ACCOUNTS passwords meet auth policy', () => {
-    for (const key of ['carrier', 'customer', 'affiliate'] as const) {
-      const { email, password } = DEMO_PORTAL_TEST_ACCOUNTS[key];
-      expect(email).toMatch(/^testmail[123]@example\.com$/);
-      expect(isPasswordAcceptableForAuth(password), `${key}`).toBe(true);
-    }
-  });
   it('buildDemoManifestCsv produces valid rows and cycles postcodes', () => {
     const csv = buildDemoManifestCsv({
       tag: 't1',

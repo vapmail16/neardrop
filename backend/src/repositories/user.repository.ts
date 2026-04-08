@@ -62,6 +62,21 @@ export class UserRepository {
     await this.db('users').where({ id }).update({ last_login_at: this.db.fn.now() });
   }
 
+  async updatePasswordHash(id: string, passwordHash: string, opts?: { reactivate?: boolean }): Promise<void> {
+    if (opts?.reactivate) {
+      await this.db('users').where({ id }).update({
+        password_hash: passwordHash,
+        is_active: true,
+        updated_at: this.db.fn.now(),
+      });
+      return;
+    }
+    await this.db('users').where({ id }).update({
+      password_hash: passwordHash,
+      updated_at: this.db.fn.now(),
+    });
+  }
+
   /** For manifest import: link parcel to customer account when email matches. */
   async findCustomerIdByEmail(email: string): Promise<string | null> {
     const row = await this.db<{ id: string }>('users')

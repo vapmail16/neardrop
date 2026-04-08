@@ -8,7 +8,10 @@ import { logout } from '@/lib/api/auth';
 import { ApiRequestError } from '@/lib/api/client';
 
 const links = [
-  { href: '/ops/dashboard', label: 'Dashboard' },
+  { href: '/ops/dashboard', label: 'Ops' },
+  { href: '/carrier/dashboard', label: 'Carrier' },
+  { href: '/customer/dashboard', label: 'Customer' },
+  { href: '/affiliate/dashboard', label: 'Affiliate' },
   { href: '/ops/map', label: 'Map' },
   { href: '/ops/parcels', label: 'Parcels' },
 ] as const;

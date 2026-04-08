@@ -2,7 +2,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-/** Monorepo root — include `backend/packages/shared` in standalone file tracing. */
+/** Monorepo root for standalone tracing. */
 const outputFileTracingRoot = path.join(__dirname, '..');
 
 /** @type {import('next').NextConfig} */

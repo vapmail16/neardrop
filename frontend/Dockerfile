@@ -2,39 +2,26 @@
 #
 # DCDeploy (same pattern as backend): Context = ./frontend , Dockerfile = ./Dockerfile
 #
-# The context tarball does NOT include ../backend, but package.json uses file:../backend/packages/shared.
-# This image shallow-clones the same Git repo inside the build to copy backend/packages/shared.
+# Shared package now lives inside frontend context at `frontend/packages/shared`,
+# so Docker build does not need a repo clone step.
 #
-# Build args (set in DCDeploy when needed):
-#   GIT_REPO   default https://github.com/vapmail16/neardrop.git  (change for forks/private mirrors)
-#   GIT_REF    default main  — branch or tag name Git accepts with git clone --branch
+# Build arg (set in DCDeploy when needed):
 #   API_UPSTREAM  — your public API base URL (https://..., no trailing slash); baked into next.config at build time
-#
-# Private GitHub: use a PAT in GIT_REPO URL or DCDeploy git credentials; see docs/FRONTEND_DEPLOYMENT_GUIDE.md
 #
 # Container listens on PORT (default 3000). Set DCDeploy service port + env PORT to the same value (not 80 as non-root).
 
 FROM node:20-alpine AS base
-RUN apk add --no-cache libc6-compat git
+RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
-FROM base AS shared-fetch
-ARG GIT_REPO=https://github.com/vapmail16/neardrop.git
-ARG GIT_REF=main
-RUN git clone --depth 1 --branch "${GIT_REF}" "${GIT_REPO}" /tmp/neardrop && \
-    mkdir -p /app/backend/packages && \
-    cp /tmp/neardrop/backend/tsconfig.base.json /app/backend/tsconfig.base.json && \
-    cp -r /tmp/neardrop/backend/packages/shared /app/backend/packages/shared
-
 FROM base AS builder
-COPY --from=shared-fetch /app/backend /app/backend
+WORKDIR /app/frontend
+COPY . .
 # @neardrop/shared exposes dist/ only; Next typecheck needs compiled output.
-WORKDIR /app/backend/packages/shared
+WORKDIR /app/frontend/packages/shared
 RUN npm install && npm run build
 WORKDIR /app/frontend
-COPY package.json package-lock.json ./
 RUN npm ci
-COPY . .
 
 ARG API_UPSTREAM=http://127.0.0.1:3010
 ENV API_UPSTREAM=$API_UPSTREAM

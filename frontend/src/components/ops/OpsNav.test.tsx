@@ -42,7 +42,7 @@ describe('OpsNav', () => {
     expect(push).toHaveBeenCalledWith('/login?portal=ops');
   });
 
-  it('links to ops dashboard, map, and parcels', () => {
+  it('links to ops tools and cross-portal views', () => {
     const u: UserPublic = {
       id: '1',
       email: 'o@example.com',
@@ -55,7 +55,10 @@ describe('OpsNav', () => {
       createdAt: '',
     };
     render(<OpsNav user={u} />);
-    expect(screen.getByRole('link', { name: /^dashboard$/i })).toHaveAttribute('href', '/ops/dashboard');
+    expect(screen.getByRole('link', { name: /^ops$/i })).toHaveAttribute('href', '/ops/dashboard');
+    expect(screen.getByRole('link', { name: /^carrier$/i })).toHaveAttribute('href', '/carrier/dashboard');
+    expect(screen.getByRole('link', { name: /^customer$/i })).toHaveAttribute('href', '/customer/dashboard');
+    expect(screen.getByRole('link', { name: /^affiliate$/i })).toHaveAttribute('href', '/affiliate/dashboard');
     expect(screen.getByRole('link', { name: /^map$/i })).toHaveAttribute('href', '/ops/map');
     expect(screen.getByRole('link', { name: /^parcels$/i })).toHaveAttribute('href', '/ops/parcels');
   });
